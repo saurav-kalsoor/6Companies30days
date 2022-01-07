@@ -2,30 +2,31 @@ class Solution {
     
   public:
   
-    map<string, pair<int, string>> dp;
+    pair<int, string> dp[30][30];
+    bool isSet[30][30];
     
-    string matrixChainOrder(int A[], int n) {
-        return matrixChainOrderUtil(A, 0, n - 1).second;
-    }
-    
-    pair<int, string> matrixChainOrderUtil(int p[], int l, int r) {
-        if(l + 1 == r)
-            return {0, "" + string(1, l + 'A')};
-            
-        string key = to_string(l) + ";" + to_string(r);
+    pair<int, string> f(int arr[], int i, int j){
+        if(i == j) return {0, string(1, i-1 + 'A')};
         
-        if(dp.count(key)) 
-            return dp[key];
+        if(isSet[i][j]) return dp[i][j];
+        isSet[i][j] = true;
         
-        int currMin = INT_MAX;
-        string minString;
-        for(int k = l + 1; k < r; k++) {
-            auto p1 = matrixChainOrderUtil(p, l, k), p2 = matrixChainOrderUtil(p, k, r);
-            if(p1.first + p2.first + p[l] * p[k] * p[r] < currMin) {
-                currMin = p1.first + p2.first + p[l] * p[k] * p[r];
-                minString = p1.second + p2.second;
+        int mn = INT_MAX;
+        string st;
+        for(int k = i; k < j; k++){
+            auto p1 = f(arr, i, k), p2 = f(arr, k+1, j);
+            if(p1.first + p2.first + arr[i-1] * arr[k] * arr[j] < mn){
+                mn = p1.first + p2.first + arr[i-1] * arr[k] * arr[j];
+                st = p1.second + p2.second;
             }
         }
-        return dp[key] = {currMin, "(" + minString + ")"};
+        
+        return dp[i][j] = {mn, "(" + st + ")"};
     }
+    
+    string matrixChainOrder(int arr[], int N){
+        memset(isSet, false, sizeof(isSet));
+        return f(arr, 1, N-1).second;
+    }
+    
 };
